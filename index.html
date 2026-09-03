@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sana Kavuşmama Kalan Süre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night-deep:#0B0F2E;
+    --night-mid:#171B4D;
+    --night-low:#241f47;
+    --gold:#F5C56B;
+    --gold-soft:#F9DFA1;
+    --rose:#FF7FA6;
+    --cream:#F6F1E7;
+    --lavender:#9B96C9;
+    --car-red:#E14B5B;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html,body{
+    height:100%;
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(155,150,201,0.16), transparent 55%),
+      radial-gradient(ellipse at 85% 15%, rgba(255,127,166,0.10), transparent 50%),
+      linear-gradient(180deg, var(--night-deep) 0%, var(--night-mid) 55%, var(--night-low) 100%);
+    color:var(--cream);
+    font-family:'Manrope', sans-serif;
+    overflow-x:hidden;
+  }
+
+  .stars{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+  }
+  .star{
+    position:absolute; border-radius:50%;
+    background:var(--cream);
+    animation:twinkle 3.5s ease-in-out infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{opacity:.15; transform:scale(.8);}
+    50%{opacity:.95; transform:scale(1.15);}
+  }
+
+  .heart-float{
+    position:fixed; bottom:-40px; z-index:0; pointer-events:none;
+    color:var(--rose); opacity:0; font-size:18px;
+    animation:rise 9s linear infinite;
+  }
+  @keyframes rise{
+    0%{opacity:0; transform:translateY(0) translateX(0) scale(.7);}
+    10%{opacity:.55;}
+    85%{opacity:.35;}
+    100%{opacity:0; transform:translateY(-100vh) translateX(20px) scale(1);}
+  }
+
+  main{
+    position:relative; z-index:1;
+    min-height:100dvh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    padding:6vh 6vw 8vh;
+  }
+
+  .prelude{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:clamp(1.15rem, 2.6vw, 1.7rem);
+    color:var(--gold-soft);
+    letter-spacing:.01em;
+    opacity:0;
+    animation:fadeUp 1.1s ease forwards .15s;
+  }
+
+  .prelude .rest{
+    display:block;
+    font-family:'Manrope', sans-serif;
+    font-style:normal;
+    font-weight:500;
+    font-size:clamp(.85rem, 1.6vw, 1rem);
+    color:var(--lavender);
+    margin-top:.6rem;
+  }
+
+  @keyframes fadeUp{
+    from{opacity:0; transform:translateY(14px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  .countdown{
+    display:flex; gap:clamp(.6rem, 2.4vw, 1.6rem);
+    margin:clamp(2rem, 5vh, 3.2rem) 0 clamp(2.4rem, 6vh, 3.6rem);
+    flex-wrap:wrap;
+    justify-content:center;
+    opacity:0;
+    animation:fadeUp 1.1s ease forwards .4s;
+  }
+
+  .unit{
+    display:flex; flex-direction:column; align-items:center;
+    min-width:clamp(64px, 18vw, 108px);
+  }
+
+  .unit .num{
+    font-family:'Manrope', sans-serif;
+    font-weight:800;
+    font-size:clamp(2.1rem, 7vw, 3.6rem);
+    line-height:1;
+    color:var(--cream);
+    text-shadow:0 0 22px rgba(245,197,107,0.35);
+    font-variant-numeric:tabular-nums;
+  }
+
+  .unit .lbl{
+    margin-top:.5rem;
+    font-size:clamp(.68rem, 1.6vw, .82rem);
+    color:var(--lavender);
+    letter-spacing:.04em;
+  }
+
+  .sep{
+    font-family:'Manrope', sans-serif;
+    font-weight:700;
+    font-size:clamp(1.6rem, 5vw, 2.6rem);
+    color:var(--gold);
+    align-self:flex-start;
+    margin-top:clamp(.1rem,1vw,.3rem);
+    opacity:.55;
+  }
+
+  .arrival{
+    display:none;
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:clamp(2rem, 6vw, 3.4rem);
+    color:var(--gold);
+    text-shadow:0 0 30px rgba(245,197,107,0.5);
+    margin:clamp(1.6rem,5vh,2.6rem) 0;
+  }
+
+  .route-wrap{
+    width:min(880px, 92vw);
+    opacity:0;
+    animation:fadeUp 1.1s ease forwards .7s;
+  }
+
+  .route-wrap svg{ width:100%; height:auto; display:block; overflow:visible; }
+
+  .city-label{
+    font-size:12px;
+    fill:var(--lavender);
+    font-family:'Manrope', sans-serif;
+    letter-spacing:.03em;
+  }
+  .city-name{
+    font-size:16px;
+    font-weight:700;
+    fill:var(--cream);
+    font-family:'Manrope', sans-serif;
+  }
+
+  .road-path{
+    fill:none;
+    stroke:rgba(246,241,231,0.16);
+    stroke-width:3;
+    stroke-linecap:round;
+    stroke-dasharray:2 14;
+  }
+
+  .car-group{
+    offset-path: path("M40,190 C210,118 300,246 480,172 C660,98 770,224 958,150");
+    offset-rotate:auto;
+    animation:drive 9s linear infinite;
+  }
+  @keyframes drive{
+    0%{offset-distance:0%; opacity:0;}
+    6%{opacity:1;}
+    92%{opacity:1;}
+    100%{offset-distance:100%; opacity:0;}
+  }
+
+  .distance-note{
+    margin-top:1rem;
+    font-size:clamp(.75rem, 1.6vw, .88rem);
+    color:var(--lavender);
+    opacity:0;
+    animation:fadeUp 1.1s ease forwards .95s;
+  }
+
+  .distance-note b{ color:var(--gold-soft); font-weight:700; }
+
+  .sound-toggle{
+    position:fixed; bottom:22px; right:22px; z-index:2;
+    width:46px; height:46px; border-radius:50%;
+    background:rgba(246,241,231,0.08);
+    border:1px solid rgba(246,241,231,0.22);
+    color:var(--cream);
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; cursor:pointer;
+    backdrop-filter:blur(6px);
+    transition:background .2s ease, transform .2s ease;
+  }
+  .sound-toggle:hover{ background:rgba(246,241,231,0.16); transform:scale(1.05); }
+
+  .confetti-heart{
+    position:fixed; top:-30px; z-index:3; pointer-events:none;
+    color:var(--rose); font-size:20px;
+    animation:fall linear forwards;
+  }
+  @keyframes fall{
+    to{ transform:translateY(110vh) rotate(340deg); opacity:0; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .star, .heart-float, .car-group, .confetti-heart{ animation:none !important; }
+    .prelude, .countdown, .route-wrap, .distance-note{ animation:none !important; opacity:1 !important; }
+  }
+
+  @media (max-width:480px){
+    .countdown{ gap:.7rem; }
+    .sep{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<main>
+  <p class="prelude">
+    Seni öpmeme&hellip;
+    <span class="rest" id="preludeSub">bu kadar kaldı</span>
+  </p>
+
+  <div class="countdown" id="countdown">
+    <div class="unit"><span class="num" id="d">00</span><span class="lbl">gün</span></div>
+    <span class="sep">:</span>
+    <div class="unit"><span class="num" id="h">00</span><span class="lbl">saat</span></div>
+    <span class="sep">:</span>
+    <div class="unit"><span class="num" id="m">00</span><span class="lbl">dakika</span></div>
+    <span class="sep">:</span>
+    <div class="unit"><span class="num" id="s">00</span><span class="lbl">saniye</span></div>
+  </div>
+
+  <p class="arrival" id="arrival">Hoş geldin sevgilim!</p>
+
+  <div class="route-wrap">
+    <svg viewBox="0 0 1000 260" xmlns="http://www.w3.org/2000/svg">
+      <path class="road-path" d="M40,190 C210,118 300,246 480,172 C660,98 770,224 958,150"/>
+
+      <g transform="translate(40,190)">
+        <circle r="4.5" fill="#F5C56B"/>
+        <g transform="translate(-14,-38)" opacity="0.85">
+          <path d="M0,18 C0,8 6,0 14,0 C22,0 28,8 28,18 C28,26 14,40 14,40 C14,40 0,26 0,18 Z" fill="none" stroke="var(--rose)" stroke-width="1.4"/>
+        </g>
+        <text class="city-name" x="0" y="-50" text-anchor="middle">Denizli</text>
+        <text class="city-label" x="0" y="34" text-anchor="middle">güle güle horozlar</text>
+      </g>
+
+      <g transform="translate(958,150)">
+        <circle r="4.5" fill="#F5C56B"/>
+        <g transform="translate(-14,-42)" opacity="0.85">
+          <path d="M0,20 L0,4 M-6,4 L6,4 M-3,4 L-3,-4 M3,4 L3,-4" stroke="var(--lavender)" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M-9,20 C-9,10 -3,2 0,2 C3,2 9,10 9,20 Z" fill="none" stroke="var(--gold)" stroke-width="1.2"/>
+        </g>
+        <text class="city-name" x="0" y="-52" text-anchor="middle">İstanbul</text>
+        <text class="city-label" x="0" y="32" text-anchor="middle">seni burada bekliyorum</text>
+      </g>
+
+      <g class="car-group">
+        <g transform="translate(-16,-9)">
+          <path d="M2,14 L4,8 Q6,3 12,3 L20,3 Q25,3 27,7 L30,14 Q31,17 28,17 L4,17 Q1,17 2,14 Z" fill="var(--car-red)"/>
+          <path d="M9,9 L12,4.5 Q13.5,3.5 16,3.5 L18,3.5 Q19.5,3.5 20,5 L21,9 Z" fill="rgba(246,241,231,0.55)"/>
+          <circle cx="9" cy="17.5" r="3" fill="#12142c"/>
+          <circle cx="24" cy="17.5" r="3" fill="#12142c"/>
+          <circle cx="9" cy="17.5" r="1.1" fill="#F6F1E7"/>
+          <circle cx="24" cy="17.5" r="1.1" fill="#F6F1E7"/>
+          <circle cx="30.5" cy="12" r="1.6" fill="var(--gold)"/>
+        </g>
+      </g>
+    </svg>
+
+    <p class="distance-note">Denizli &ndash; İstanbul, neredeyse <b>600 km</b> &mdash; Seat Leon ve sen hızla tamamlayacaksınız.</p>
+  </div>
+</main>
+
+<button class="sound-toggle" id="soundBtn" aria-label="Müziği aç/kapat" title="Müziği aç/kapat">&#9835;</button>
+<audio id="bgm" src="muzik.mp3" loop preload="none"></audio>
+
+<script>
+  var starsEl = document.getElementById('stars');
+  for (var i = 0; i < 70; i++) {
+    var st = document.createElement('div');
+    st.className = 'star';
+    var sz = (Math.random() * 2 + 1).toFixed(1);
+    st.style.width = sz + 'px';
+    st.style.height = sz + 'px';
+    st.style.top = (Math.random() * 100) + 'vh';
+    st.style.left = (Math.random() * 100) + 'vw';
+    st.style.animationDelay = (Math.random() * 3.5).toFixed(2) + 's';
+    st.style.animationDuration = (2.5 + Math.random() * 3).toFixed(2) + 's';
+    starsEl.appendChild(st);
+  }
+
+  var heartChars = ['&#10084;', '&#10084;'];
+  for (var j = 0; j < 6; j++) {
+    var hf = document.createElement('div');
+    hf.className = 'heart-float';
+    hf.innerHTML = '&#10084;';
+    hf.style.left = (8 + Math.random() * 84) + 'vw';
+    hf.style.animationDelay = (j * 3.2 + Math.random() * 2) + 's';
+    hf.style.animationDuration = (8 + Math.random() * 5) + 's';
+    hf.style.fontSize = (12 + Math.random() * 12) + 'px';
+    document.body.appendChild(hf);
+  }
+
+  var target = new Date(2026, 8, 5, 18, 0, 0).getTime();
+  var dEl = document.getElementById('d');
+  var hEl = document.getElementById('h');
+  var mEl = document.getElementById('m');
+  var sEl = document.getElementById('s');
+  var countdownEl = document.getElementById('countdown');
+  var arrivalEl = document.getElementById('arrival');
+  var preludeSub = document.getElementById('preludeSub');
+  var celebrated = false;
+
+  function pad(n){ return String(n).padStart(2, '0'); }
+
+  function burstHearts(){
+    for (var k = 0; k < 60; k++){
+      (function(){
+        setTimeout(function(){
+          var c = document.createElement('div');
+          c.className = 'confetti-heart';
+          c.innerHTML = '&#10084;';
+          c.style.left = (Math.random() * 100) + 'vw';
+          c.style.fontSize = (14 + Math.random() * 16) + 'px';
+          c.style.animationDuration = (3 + Math.random() * 3) + 's';
+          c.style.color = Math.random() > 0.5 ? 'var(--rose)' : 'var(--gold)';
+          document.body.appendChild(c);
+          setTimeout(function(){ c.remove(); }, 7000);
+        }, k * 90);
+      })();
+    }
+  }
+
+  function tick(){
+    var now = Date.now();
+    var diff = target - now;
+
+    if (diff <= 0){
+      countdownEl.style.display = 'none';
+      preludeSub.textContent = 'geldi';
+      arrivalEl.style.display = 'block';
+      if (!celebrated){
+        celebrated = true;
+        burstHearts();
+        setInterval(burstHearts, 12000);
+      }
+      return;
+    }
+
+    var days = Math.floor(diff / 86400000);
+    var hours = Math.floor((diff % 86400000) / 3600000);
+    var mins = Math.floor((diff % 3600000) / 60000);
+    var secs = Math.floor((diff % 60000) / 1000);
+
+    dEl.textContent = pad(days);
+    hEl.textContent = pad(hours);
+    mEl.textContent = pad(mins);
+    sEl.textContent = pad(secs);
+  }
+
+  tick();
+  setInterval(tick, 1000);
+
+  var bgm = document.getElementById('bgm');
+  var soundBtn = document.getElementById('soundBtn');
+  var playing = false;
+  soundBtn.addEventListener('click', function(){
+    if (!playing){
+      bgm.play().catch(function(){});
+      soundBtn.innerHTML = '&#9209;';
+      playing = true;
+    } else {
+      bgm.pause();
+      soundBtn.innerHTML = '&#9835;';
+      playing = false;
+    }
+  });
+</script>
+
+</body>
+</html>
